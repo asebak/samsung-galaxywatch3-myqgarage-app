@@ -1,0 +1,1 @@
+# samsung-watch-myqgarage-app
