@@ -1,0 +1,27 @@
+﻿<Project Sdk="Tizen.NET.Sdk/1.1.5">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>tizen60</TargetFramework>
+      <AssemblyName>GalaxyWatchGarage.Tizen.Wearable</AssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugType>portable</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>None</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="lib\" />
+    <Folder Include="res\" />
+  </ItemGroup>
+
+  
+  <ItemGroup>
+    <ProjectReference Include="..\GalaxyWatchGarage\GalaxyWatchGarage.csproj" />
+  </ItemGroup>
+  
+
+</Project>
