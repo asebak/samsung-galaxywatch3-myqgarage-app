@@ -1,5 +1,7 @@
 using GalaxyWatchGarage.Pages;
+using NetworkApp.Models;
 using SamsungWatchGarage.Integration;
+using SamsungWatchGarage.Integration.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,28 +13,12 @@ namespace GalaxyWatchGarage
     public class App : Application
     {
         MyQApi api;
-        public App()
+        private ContentPage noInternetPage = new ContentPage
         {
-            api = new MyQApi();
-        }
-
-
-
-        protected async override void OnStart()
-        {
-            var result = await api.Login(Constants.Email, Constants.Password);
-            if (result)
+            Content = new StackLayout
             {
-                MainPage = new Garage(api);
-            }
-            else
-            {
-                MainPage = new ContentPage
-                {
-                    Content = new StackLayout
-                    {
-                        VerticalOptions = LayoutOptions.Center,
-                        Children =
+                VerticalOptions = LayoutOptions.Center,
+                Children =
                     {
                         new Label
                         {
@@ -41,8 +27,63 @@ namespace GalaxyWatchGarage
                         }
 
                     }
+            }
+        };
+        private ContentPage loggedInFail = new ContentPage
+        {
+            Content = new StackLayout
+            {
+                VerticalOptions = LayoutOptions.Center,
+                Children =
+                    {
+                        new Label
+                        {
+                            HorizontalTextAlignment = TextAlignment.Center,
+                            Text = "Login credentials are invalid..."
+                        }
+
                     }
-                };
+            }
+        };
+        private readonly WiFiApiManager wifi;
+
+        public App()
+        {
+            api = new MyQApi();
+            wifi = new WiFiApiManager();
+        }
+
+
+
+        protected async override void OnStart()
+        {
+            if (!wifi.IsActive())
+            {
+                await wifi.Activate();
+            }
+            await wifi.Scan();
+
+            var net = wifi.ScanResult();
+
+            var savedNetowrk = net.Where(x => wifi.IsAPInfoStored(x.Name)).FirstOrDefault();
+            if (savedNetowrk != null)
+            {
+                if (savedNetowrk.State.ToLower() != "connected")
+                {
+                    await wifi.Connect(savedNetowrk.Name, string.Empty);
+                }
+                var result = await api.Login(Constants.Email, Constants.Password);
+                if (result)
+                {
+                    MainPage = new Garage(api);
+                }
+                else
+                {
+                    MainPage = loggedInFail; 
+                }
+            } else
+            {
+                MainPage = noInternetPage;
             }
         }
 
